@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Select offerings to put into an order</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  		var visitor;
+		var visitors;
+  		var item;
+  		var items;
+  		var visitorIndex;
+  		var itemIndex;
+  		var totalSum = 0;
+  		var sumOutput = document.getElementById("sumOutput");
+  
+	    function calcTotalSum(x) {
+			totalSum += x;
+		}
+	    
+	    function getTotalSum() {
+	    	var html = totalSum + ' &nbsp;&nbsp&nbsp&nbsp USD'; 
+	    	document.getElementById("sumOutput").innerHTML = html;  
+		}
+	    
+	    function fixNull(x) {
+	    	if (x === null | x === "null" | x === "none" | x === "")
+	    		return "";
+	    	else
+	    		return x;
+	    }
+	    
+	    function fetchVisitorIndex() {
+	    	var val = document.getElementById("visitor_input").value;
+	    	var options = document.getElementById("visitor-options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		visitorIndex = options[i].id;
+		    		break;
+	    		}
+	    	}
+	    	console.log(visitorIndex);
+	    }
+	    
+	    	    
+	    function fetchItemIndex() {
+	    	totalSum = 0;
+	    	getTotalSum();
+	    	var val = document.getElementById("item_input").value;
+	    	var options = document.getElementById("item-options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		itemIndex = options[i].id;
+		    		break;
+	    		}
+	    	}
+	    	console.log(itemIndex);
+	    	calcTotalSum(items[itemIndex].price);
+	    	getTotalSum();
+	    }
+	    
+	    function displayVisitorOptions() {
+	    	var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				visitors = JSON.parse(this.responseText);
+	  				console.log(visitors.length);
+	  				var html;
+	  				for(var i = 0; i < visitors.length; i++) {
+		  				visitor = visitors[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + visitor.lastName + ' ' + visitor.firstName + ' ' + fixNull(visitor.secondName) + '">\n' + ' &lt;User name: ' + visitor.login + '&gt;\n'				                  
+		  			}
+	  				document.getElementById("visitor-options").innerHTML = html;                   
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/visitor/findAllVisitors", true);
+	  		xhttp.send();
+	  	} 
+	    
+	    function displayOfferings() {
+	    	var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				items = JSON.parse(this.responseText);
+	  				console.log(items.length);
+	  				var html;
+	  				for(var i = 0; i < items.length; i++) {
+		  				item = items[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + item.training.title + '">\n' + item.training.specialization + ' (' + item.training.price + ' USD)' + '\n'				                  
+		  			}
+	  				document.getElementById("item-options").innerHTML = html;	  				
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/orderItem/findAllItems", true);
+	  		xhttp.send();
+	  	}   
+	    
+	    
+	    function enterNewOrder(){
+	    	var visitorPick = visitors[visitorIndex];
+	    	var itemPick = items[itemIndex];
+			var itemPrice = itemPick.price;
+			var itemToList = [];
+			itemToList.push(itemPick);
+			console.log(itemPick.training.id);
+			localStorage.setItem('visitorRef', visitorPick.id);
+			localStorage.setItem('trainingRef', itemPick.training.id);
+			localStorage.setItem('totalSumRef', totalSum);
+						
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("POST", "http://localhost:5435/order/saveOrder");
+			xmlhttp.setRequestHeader("Accept", "application/json");
+			xmlhttp.setRequestHeader("Content-Type", "application/json");
+			xmlhttp.send(JSON.stringify({status: "Draft", sum: itemPrice, visitor: visitorPick, itemsContained: 1, itemList: itemToList }));		
+		}  
+  
+	    function addPaymentInfo(){
+			location.href = "addtransact";
+		} 
+  </script>
+</head>  
+<body>
+
+	<div class="contest">
+		    <header class="contest__header">		       
+		        <h1 class="contest__title">Select available offerings</h1>
+		    </header>
+	</div>
+    <div class="contest">
+		<form class="form">
+			    	<div id="visitor">		    	
+				    	<div class="dropdown dropdown-auth text-center">
+					  		<div class="btn-group">
+								   <input list="visitor-options" id="visitor_input" oninput='fetchVisitorIndex()' type="text" placeholder="Select visitor to enter order by" class="form__input" onfocus="displayVisitorOptions()" />
+								   <datalist id="visitor-options">	
+								   </datalist>
+							</div>
+						</div>	           
+			        </div> 
+			        
+			        <div id="item">		    	
+				    	<div class="dropdown dropdown-auth text-center">
+					  		<div class="btn-group">
+								   <input list="item-options" id="item_input" oninput='fetchItemIndex()' type="text" placeholder="Select training to access" class="form__input" onfocus="displayOfferings()" />
+								   <datalist id="item-options">	
+								   </datalist>
+							</div>
+						</div>	           
+			        </div>   
+			    
+			        <div>
+			            <div class="sum-block form__input" style="width: 50%; font-size: 20px; text-align: center"><label for="total_sum">Total sum</label></div>	
+			            <div class="sum-block total-sum-figure"><span id="sumOutput"></span></div>	           
+			       </div>      
+			       			        
+			       <button class="btn" type="button" style="color: royalblue" onclick="enterNewOrder();addPaymentInfo()">Advance to payment</button>
+			</form>	
+	</div>	
+	<script>getTotalSum();</script>
+</body>  
+</html>

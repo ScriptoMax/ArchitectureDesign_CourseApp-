@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>New submission form</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  
+  		var visitor;
+  		var visitors;
+  		var contest;
+  		var contests;
+  		var visitorIndex;
+  		var specValue;
+  		var contestIndex;
+  		var visitorPick;
+  		var contestPick;
+  		var submissionStatus = "Registered";
+  
+	    function fixNull(x) {
+	    	if (x === null | x === '')
+	    		return "";
+	    	else
+	    		return x;
+	    }
+	    
+	    function fetchVisitorIndex() {
+	    	var val = document.getElementById("visitor_input").value;
+	    	var options = document.getElementById("visitor-options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		visitorIndex = options[i].id;
+		    		break;
+	    		}
+	    	}
+	    	console.log(visitorIndex);
+	    }
+	    
+	    function fetchContestIndex() {
+	    	var val = document.getElementById("contest_input").value;
+	    	var options = document.getElementById("contest-options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		contestIndex = options[i].id;
+		    		break;
+	    		}
+	    	}
+	    	console.log(contestIndex);
+	    }
+	    
+	    function fetchSpecValue() {
+	    	var val = document.getElementById("spec_input").value;
+	    	var options = document.getElementById("spec-options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		specValue = options[i].value;
+		    		break;
+	    		}
+	    	}
+	    	console.log(specValue);
+	    }
+	    
+	    function displayVisitorOptions() {
+	  		var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				visitors = JSON.parse(this.responseText);
+	  				console.log(visitors.length);
+	  				var html;
+	  				for(var i = 0; i < visitors.length; i++) {
+		  				visitor = visitors[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + visitor.lastName + ' ' + visitor.firstName + ' ' + fixNull(visitor.secondName) + '">\n' + ' &lt;User name: ' + visitor.login + '&gt;\n'				                  
+		  			}
+	  				document.getElementById("visitor-options").innerHTML = html;                   
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/visitor/findAllVisitors", true);
+	  		xhttp.send();
+	  	} 
+	    
+	    
+	    function displaySpecOptions() {
+	  		var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				specializations = JSON.parse(this.responseText);
+	  				console.log(visitors.length);
+	  				var html;
+	  				for(var i = 0; i < visitors.length; i++) {
+		  				spec = specializations[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + spec + '">\n'				                  
+		  			}
+	  				document.getElementById("spec-options").innerHTML = html;                   
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/contest/findSpecializations", true);
+	  		xhttp.send();
+	  	} 
+	    
+	    function displayContestOptions() {
+	  		var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				contests = JSON.parse(this.responseText);
+	  				console.log(contests.length);
+	  				var html;
+	  				for(var i = 0; i < contests.length; i++) {
+		  				contest = contests[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + contest.title +'">\n' + ' ' + contest.specialization + ', ' + contest.eventPlace + ', ' + contest.eventStart + ' - ' + contest.eventFinish + '\n'				                  
+		  			}
+	  				document.getElementById("contest-options").innerHTML = html;                   
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/contest/findBySpecialization?contestSpec=" + specValue, true);
+	  		xhttp.send();
+	  	} 
+	    
+	    
+	    function saveNewSubmission(){
+	    	visitorPick = visitors[visitorIndex];
+	    	contestPick = contests[contestIndex];
+	    	console.log(visitorPick.id);
+	    	localStorage.setItem('visitorId', visitorPick.id);
+	    	localStorage.setItem('contestId', contestPick.id);
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("POST", "http://localhost:5435/submission/saveSubmission");
+			xmlhttp.setRequestHeader("Accept", "application/json");
+			xmlhttp.setRequestHeader("Content-Type", "application/json");
+			xmlhttp.send(JSON.stringify({visitor: visitorPick, contest: contestPick, status: submissionStatus }));		
+		}  
+	    
+	    function showResult(){
+			location.href = "submission_summary";
+		} 	
+  
+  </script>
+</head>  
+<body>
+	<div class="contest">
+		    <header class="contest__header">		       
+		        <h1 class="contest__title addsubmission__title">Add submission for specialization-matching contest</h1>
+		    </header>
+	</div>	
+	
+	<div class="contest">	    
+		    <form class="form">
+		    	<div id="visitor">		    	
+			    	<div class="dropdown dropdown-auth text-center">
+				  		<div class="btn-group">
+							   <input list="visitor-options" id="visitor_input" oninput='fetchVisitorIndex()' type="text" placeholder="Select visitor to submit by" class="form__input" onfocus="displayVisitorOptions()" />
+							   <datalist id="visitor-options">	
+							   </datalist>
+						</div>
+					</div>	           
+		        </div>
+		        
+		        
+		        <div id="specialization">		    	
+			    	<div class="dropdown dropdown-auth text-center">
+				  		<div class="btn-group">
+							   <input list="spec-options" id="spec_input" oninput='fetchSpecValue()' type="text" placeholder="Select specialization" class="form__input" onfocus="displaySpecOptions()" />
+							   <datalist id="spec-options">	
+							   </datalist>
+						</div>
+					</div>	           
+		        </div>
+		        
+		        
+		        <div id="contest">		    	
+			    	<div class="dropdown dropdown-auth text-center">
+				  		<div class="btn-group">
+							   <input list="contest-options" id="contest_input" oninput='fetchContestIndex()' type="text" placeholder="Select contest to submit for" class="form__input" onfocus="displayContestOptions()" />
+							   <datalist id="contest-options">	
+							   </datalist>
+						</div>
+					</div>	           
+		        </div>	    
+		        
+		         <button class="btn" type="button" style="color: royalblue" onclick="saveNewSubmission();showResult();">File submission</button>
+		</form>
+		</div>		
+</body>  
+</html>

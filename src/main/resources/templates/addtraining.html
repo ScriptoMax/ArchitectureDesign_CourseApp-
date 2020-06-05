@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>New training offer</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  
+  		var trainer;
+  		var trainers;
+  		var index;
+  
+	    function castCertOption() {
+			var certOption = document.getElementById("cert_option_input").value;
+			console.log(certOption);
+			if (certOption === "no")
+				return false;
+			else
+				return true;
+		}
+	    
+	    function castFreeAccess() {
+			var mustpaid = document.getElementById("free_input").value;
+			console.log(free);
+			if (mustpaid === "yes")
+				return false;
+			else
+				return true;
+		}
+	    
+	    function fixNull(x) {
+	    	if (x === null | x === "null" | x === "none" | x === "")
+	    		return "";
+	    	else
+	    		return x;
+	    }
+	    
+	    function fetchInputIndex() {
+	    	var val = document.getElementById("trainer_input").value;
+	    	var options = document.getElementById("options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		index = options[i].id;
+		    		break;
+	    		}
+	    	}
+	    	console.log(index);
+	    }
+	    
+	    function displayTrainerOptions() {
+	  		var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				trainers = JSON.parse(this.responseText);
+	  				console.log(trainers.length);
+	  				var html;
+	  				for(var i = 0; i < trainers.length; i++) {
+		  				trainer = trainers[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + trainer.lastName + ' ' + trainer.firstName + ' ' + fixNull(trainer.secondName) + '">\n' + fixNull(trainer.affiliation) + ' &lt;User name: ' + trainer.login + '&gt;\n'				                  
+		  			}
+	  				document.getElementById("options").innerHTML = html;                   
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/trainer/findAllTrainers", true);
+	  		xhttp.send();
+	  	}   
+	    
+	    
+	    function saveNewTraining(){
+	    	var trainerPick = trainers[index];
+			var trainingTitle = document.getElementById("title_input").value;
+			var trainingAnnotation = document.getElementById("annotation_input").value;				
+			var trainingSpec = document.getElementById("specialization_input").value;	
+			var trainingFree = castFreeAccess();
+			var trainingCertOption = castCertOption();
+			var trainingDuration = document.getElementById("duration_input").value;
+			var trainingPrice = document.getElementById("price_input").value;			
+			var trainingLanguage = document.getElementById("language_input").value; 
+			var trainingComplexity = document.getElementById("level_input").value; 
+			var trainingPrerequisites = document.getElementById("prerequisites_input").value; 
+			
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("POST", "http://localhost:5435/training/saveTraining");
+			xmlhttp.setRequestHeader("Accept", "application/json");
+			xmlhttp.setRequestHeader("Content-Type", "application/json");
+			xmlhttp.send(JSON.stringify({trainer: trainerPick, isFree: trainingFree, hasCertificateOption: trainingCertOption, title: trainingTitle, annotation: trainingAnnotation, specialization: trainingSpec, duration: trainingDuration, avgRate: 0.0, totalStudents: 0, totalRates: 0, complexLevel: trainingComplexity, prerequisites: trainingPrerequisites, language: trainingLanguage, price: trainingPrice }));		
+		} 
+	    
+	    function saveNewOrderItem() {
+	    	var trainerObj = trainers[index];
+	    	var trainingList;
+	    	var trainingRef;
+	    	var xhttp = new XMLHttpRequest();
+	    	xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				trainingList = JSON.parse(this.responseText).trainings;	
+	  				console.log(trainingList);
+	  		  		trainingRef = trainingList[trainingList.length - 1];
+	  		    	console.log(trainingRef);	  		    	
+	  		    	var xmlhttp1 = new XMLHttpRequest();
+	  		    	xmlhttp1.open("POST", "http://localhost:5435/orderItem/saveOrderItem");
+	  				xmlhttp1.setRequestHeader("Accept", "application/json");
+	  				xmlhttp1.setRequestHeader("Content-Type", "application/json");
+	  				xmlhttp1.send(JSON.stringify({training: trainingRef, price: trainingRef.price }));		
+	  			}
+	    	}
+	    	xhttp.open("GET", "http://localhost:5435/trainer/findTrainerById?id=" + trainerObj.id, true);
+		    xhttp.send();		  		
+		} 
+  
+  </script>
+</head>  
+<body>
+	<div class="contest">
+		    <header class="contest__header">		       
+		        <h1 class="contest__title">Add training offer</h1>
+		    </header>
+	</div>
+
+	<div class="training">	    
+		    <form class="form">
+		    	<div id="trainer">		    	
+			    	<div class="dropdown dropdown-auth text-center">
+				  		<div class="btn-group">
+							   <input list="options" id="trainer_input" oninput='fetchInputIndex()' type="text" placeholder="Select trainer" class="form__input" onfocus="displayTrainerOptions()" />
+							   <datalist id="options">	
+							   </datalist>
+						</div>
+					</div>	           
+		        </div>	    
+		    
+		        <div id="title">
+		            <input id="title_input" type="text" placeholder="Set title" class="form__input" />
+		        </div>
+		        
+		        <div id="specialization">
+		            <input id="specialization_input" type="text" placeholder="Specialization" class="form__input" />
+		        </div>
+		        
+		        <div id="annotation">
+		            <input id="annotation_input" type="text" placeholder="Brief description" class="form__input" />
+		        </div>
+		        
+		        <div id="language">
+		            <input id="language_input" type="text" placeholder="Language choice" class="form__input" />
+		        </div>
+		        
+		        <div id="duration">
+		            <input id="duration_input" type="text" placeholder="Total duration" class="form__input" onfocus="(this.type='time')" />
+		        </div>
+		        
+		        <div id="free">
+		            <input id="free_input" type="text" placeholder="Does your offer include fee requirement? (yes / no)" class="form__input" />
+		        </div>
+		        
+		        <div id="price">
+		            <input id="price_input" type="text" placeholder="Price (USD)" class="form__input" />
+		        </div>
+		        
+		        <div id="level">
+		            <input id="level_input" type="text" placeholder="Complexity level" class="form__input" />
+		        </div>
+		        
+		        <div id="prerequisites">
+		            <input id="prerequisites_input" type="text" placeholder="Prerequisites for trainee" class="form__input" />
+		        </div>
+		        
+		        <div id="cert_option">
+		            <input id="cert_option_input" type="text" placeholder="Do you issue any credit certificate? (yes / no)" class="form__input" />
+		        </div>
+		        
+		         <button class="btn" type="button" style="color: royalblue" onclick="saveNewTraining();saveNewOrderItem()">Add training offer</button>
+		</form>
+		</div>
+		
+<p style="text-align: center; font-size: 16px; color: orange"><a href="addsubmission">Add submission for joining contest</a></p>
+</body>  
+</html>

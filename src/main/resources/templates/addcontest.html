@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Transaction commited</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  
+  		var organiser;
+  		var organisers;
+  		var open;
+  		var index;
+  
+	    function castRegStatus() {
+			var openVar = document.getElementById("reg_open_input").value;
+			console.log(open);
+			if (open === "no")
+				return false;
+			else
+				return true;
+		}
+	    
+	    function fixNull(x) {
+	    	if (x === null | x === '')
+	    		return "";
+	    	else
+	    		return x;
+	    }
+	    
+	    function fetchInputIndex() {
+	    	var val = document.getElementById("organiser_input").value;
+	    	var options = document.getElementById("options").childNodes;
+	    	
+	    	for(var i = 0; i < options.length; i++) {
+	    		if(options[i].value === val) {
+		    		index = options[i].id;
+		    		break;
+	    		}
+	    	}
+	    	console.log(index);
+	    }
+	    
+	    function displayOrgOptions() {
+	  		var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				organisers = JSON.parse(this.responseText);
+	  				console.log(organisers.length);
+	  				var html;
+	  				for(var i = 0; i < organisers.length; i++) {
+		  				organiser = organisers[i];	  				
+		  				html = html + 
+		  					'<option id="' + i + '" value="' + organiser.affiliation + '">\n' + organiser.lastName + ' ' + organiser.firstName + ' ' + fixNull(organiser.secondName) + ' &lt;User name: ' + organiser.login + '&gt;\n'				                  
+		  			}
+	  				document.getElementById("options").innerHTML = html;                   
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/organiser/findAllOrganisers", true);
+	  		xhttp.send();
+	  	}   
+	    
+	    
+	    function saveNewContest(){
+	    	var organiserPick = organisers[index];
+			var contestTitle = document.getElementById("title_input").value;
+			var contestAnnotation = document.getElementById("annotation_input").value;				
+			var contestSpec = document.getElementById("specialization_input").value;	
+			var contestQuota = document.getElementById("quota_input").value;		
+			var contestStart = document.getElementById("start_input").value;
+			var contestFinish = document.getElementById("end_input").value;			
+			var contestLocation = document.getElementById("location_input").value; 
+			var contestComplexity = document.getElementById("level_input").value; 
+			var contestPrerequisites = document.getElementById("prerequisites_input").value; 
+			open = castRegStatus();
+			console.log(open);
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.open("POST", "http://localhost:5435/contest/saveContest");
+			xmlhttp.setRequestHeader("Accept", "application/json");
+			xmlhttp.setRequestHeader("Content-Type", "application/json");
+			xmlhttp.send(JSON.stringify({organiser: organiserPick, isRegistrationOpen: open, title: contestTitle, annotation: contestAnnotation, specialization: contestSpec, quota: contestQuota, numOfSubmissions: 0, eventStart: contestStart, eventFinish: contestFinish, eventPlace: contestLocation, traineeLevel: contestComplexity, prerequisites: contestPrerequisites }));		
+		}  
+  
+  </script>
+</head>  
+<body>
+	<div class="contest">
+		    <header class="contest__header">		       
+		        <h1 class="contest__title">Add contest offer</h1>
+		    </header>
+	</div>
+
+	<div class="contest">	    
+		    <form class="form">
+		    	<div id="organiser">		    	
+			    	<div class="dropdown dropdown-auth text-center">
+				  		<div class="btn-group">
+							   <input list="options" id="organiser_input" oninput='fetchInputIndex()' type="text" placeholder="Select organiser" class="form__input" onfocus="displayOrgOptions()" />
+							   <datalist id="options">	
+							   </datalist>
+						</div>
+					</div>	           
+		        </div>	    
+		    
+		        <div id="title">
+		            <input id="title_input" type="text" placeholder="Set title" class="form__input" />
+		        </div>
+		        
+		        <div id="specialization">
+		            <input id="specialization_input" type="text" placeholder="Specialization" class="form__input" />
+		        </div>
+		        
+		        <div id="annotation">
+		            <input id="annotation_input" type="text" placeholder="Brief description" class="form__input" />
+		        </div>
+		        
+		        <div id="quota">
+		            <input id="quota_input" type="text" placeholder="Max number of participants" class="form__input" />
+		        </div>
+		        
+		        <div id="start">
+		            <input id="start_input" type="text" placeholder="Date of start" class="form__input" onfocus="(this.type='date')" />
+		        </div>
+		        
+		        <div id="end">
+		            <input id="end_input" type="text" placeholder="Date of finish" class="form__input"  onfocus="(this.type='date')"/>
+		        </div>
+		        
+		        <div id="location">
+		            <input id="location_input" type="text" placeholder="Place" class="form__input" />
+		        </div>
+		        
+		        <div id="level">
+		            <input id="level_input" type="text" placeholder="Complexity level" class="form__input" />
+		        </div>
+		        
+		        <div id="prerequisites">
+		            <input id="prerequisites_input" type="text" placeholder="Prerequisites for submission senders" class="form__input" />
+		        </div>
+		        
+		        <div id="reg_open">
+		            <input id="reg_open_input" type="text" placeholder="Do you want to open registration? (yes / no)" class="form__input" />
+		        </div>
+		        
+		         <button class="btn" type="button" style="color: royalblue" onclick="saveNewContest()">Add contest</button>
+		</form>
+		</div>
+		
+<p style="text-align: center; font-size: 16px; color: orange"><a href="addsubmission">Add submission for joining contest</a></p>
+</body>  
+</html>

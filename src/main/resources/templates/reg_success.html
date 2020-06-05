@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to community | Registration success</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="css/reg_success.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+    function fixNull(x) {
+    	if (x === null | x === '')
+    		return "no data available";
+    	else
+    		return x;
+    }
+    
+    function getAccType(x) {
+    	if (x === true)
+    		return "Corporate";
+    	else
+    		return "Individual";
+    }
+  
+  	function displayAccInfo() {
+  		userLogin = localStorage.getItem('login');
+  		console.log(userLogin);  		
+  		var xhttp = new XMLHttpRequest();
+  		xhttp.onreadystatechange = function() {
+  			if(this.readyState == 4 && this.status == 200) {
+  				var user = JSON.parse(this.responseText);
+  				console.log(user);
+  				var html = 
+  					'<thead style="text-align: center; font-size: 24px; margin-bottom: 10px">' +
+  			        '<tr><th id="th-cust" colspan="2">Great you joined us, <span style="color: #C6782A "><strong>' + user.firstName + '</strong></span>!</th>' +     
+  			        '</tr></thead>' +
+  					'<tbody>' +
+  					'<tr><td class="td-cust"><strong> User ID </strong></td>' + 
+  				    '<td class="td-cust">' + user.id + '</td></tr>' +
+  				    '<tr><td class="td-cust"><strong> Status </strong></td>' + 
+				    '<td class="td-cust">' + user.userStatus + '</td></tr>' +
+  				    '<tr><td class="td-cust"><strong> First name </strong></td>' + 
+				    '<td class="td-cust">' + user.firstName + '</td></tr>' +
+				    '<tr><td class="td-cust"><strong> Second name </strong></td>' + 
+				    '<td class="td-cust">' + fixNull(user.secondName) + '</td></tr>' +
+				    '<tr><td class="td-cust"><strong> Last name </strong></td>' + 
+				    '<td class="td-cust">' + user.lastName + '</td></tr>' +
+				    '<tr><td class="td-cust"><strong> Account type </strong></td>' + 
+				    '<td class="td-cust">' + getAccType(user.corporate) + '</td></tr>' +
+				    '<tr><td class="td-cust"><strong> Country </strong></td>' + 
+  				    '<td class="td-cust">' + fixNull(user.country) + '</td></tr>' +
+  				    '<tr><td class="td-cust"><strong> Email </strong></td>' + 
+				    '<td class="td-cust">' + fixNull(user.email) + '</td></tr>' +
+				    '<tr><td class="td-cust"><strong> Login </strong></td>' + 
+				    '<td class="td-cust">' + user.login + '</td></tr></tbody>'				                  
+				document.getElementById("userSummary").innerHTML = html;                   
+  			}
+  		}
+  		xhttp.open("GET", "http://localhost:5435/user/findUserByLogin?login=" + userLogin, true);
+  		xhttp.send();
+  	}   
+  </script>
+
+</head>
+<body>
+
+<script>displayAccInfo();</script>
+
+<table id="userSummary">
+
+</table>
+<p style="text-align: center; font-size: 16px; color: orange"><a href="addcontest">Add contest</a></p>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Challenger detected | Submission success</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="css/reg_success.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  
+    var trainingId = localStorage.getItem('trainingRef');
+    var visitorId = localStorage.getItem('visitorRef');
+    var totalSum = localStorage.getItem('totalSumRef');
+    var orderList;
+    var order;
+    var transactList;
+    var transact;
+    
+    function fixNull(x) {
+    	if (x === null | x === '')
+    		return " ";
+    	else
+    		return x;
+    }
+    
+    function displaySummary() {
+    	console.log(trainingId);
+    	console.log(visitorId);
+    	console.log(totalSum);
+  		var xhttp1 = new XMLHttpRequest();
+  		var xhttp2 = new XMLHttpRequest();
+  		var xhttp3 = new XMLHttpRequest();
+  		var xhttp4 = new XMLHttpRequest();
+  		xhttp1.onreadystatechange = function() {
+  			if(this.readyState == 4 && this.status == 200) {
+  				console.log('passed');
+  				visitor = JSON.parse(this.responseText);
+  				xhttp2.onreadystatechange = function() {
+  		  			if(this.readyState == 4 && this.status == 200) {
+  		  			    training = JSON.parse(this.responseText);	  		  			
+		  				xhttp3.onreadystatechange = function() {
+				  		  		if(this.readyState == 4 && this.status == 200) {				  			        
+					  				orderList = JSON.parse(this.responseText);
+					  				order = orderList[orderList.length - 1];
+					  				xhttp4.onreadystatechange = function() { 
+						  				if(this.readyState == 4 && this.status == 200) {				  			        
+							  				transactList = JSON.parse(this.responseText);
+							  				transact = transactList[transactList.length - 1];
+							  				var html = 
+							  					'<thead style="text-align: center; font-size: 24px; margin-bottom: 10px">' +
+							  			        '<tr><th id="th-cust" colspan="2">Transaction overview</th>' +     
+							  			        '</tr></thead>' +
+							  					'<tbody>' +
+							  					'<tr><td class="td-cust"><strong> Order ID </strong></td>' + 
+							  				    '<td class="td-cust">' + order.id + '</td></tr>' +
+							  				    '<tr><td class="td-cust"><strong> Transaction status </strong></td>' + 
+							  				    '<td class="td-cust">' + transact.status + '</td></tr>' +							  				    
+							  				    '<tr><td class="td-cust"><strong> Payer ID </strong></td>' + 
+							  				    '<td class="td-cust">' + visitor.id + '</td></tr>' +
+							  				    '<tr><td class="td-cust"><strong> Payer </strong></td>' + 
+											    '<td class="td-cust">' + visitor.lastName + ' ' + visitor.firstName + ' ' + fixNull(visitor.secondName) + '</td></tr>' +
+							  					'<tr><td class="td-cust"><strong> Payer account </strong></td>' + 
+							  				    '<td class="td-cust">' + transact.payerAccount + '</td></tr>' +
+							  				    '<tr><td class="td-cust"><strong> Recipient account </strong></td>' + 
+											    '<td class="td-cust">' + transact.recipientAccount + '</td></tr>' + 
+											    '<tr><td class="td-cust"><strong> Payment method </strong></td>' + 
+											    '<td class="td-cust">' + transact.method + '</td></tr>' + 
+											    '<tr><td class="td-cust"><strong> Training </strong></td>' + 
+											    '<td class="td-cust">' + training.title + '</td></tr>' +
+											    '<tr><td class="td-cust"><strong> Specialization </strong></td>' + 
+											    '<td class="td-cust">' + training.specialization + '</td></tr>' +
+											    '<tr><td class="td-cust"><strong> Total cost </strong></td>' + 
+											    '<td class="td-cust">' + totalSum + ' USD' + '</td></tr>'
+											   document.getElementById("summary").innerHTML = html;  
+						  				}
+					  				}  				  		  		
+				  		  	 xhttp4.open("GET", "http://localhost:5435/transaction/findAllTransactions", true);
+				  		   	 xhttp4.send();	
+		  				}
+  		  			}
+			  		     xhttp3.open("GET", "http://localhost:5435/order/findAllOrders", true);
+			  		   	 xhttp3.send();
+  		  			}
+  				}
+  				xhttp2.open("GET", "http://localhost:5435/training/findTrainingById?id=" + trainingId, true);
+  		   	 	xhttp2.send();
+  			}
+  		}
+  		xhttp1.open("GET", "http://localhost:5435/visitor/findVisitorById?id=" + visitorId, true);
+  	  	xhttp1.send();
+  	}  	
+   		
+  </script>
+
+</head>
+<body>
+
+<script>displaySummary();</script>
+
+<table id="summary">
+
+</table>
+</body>
+</html>

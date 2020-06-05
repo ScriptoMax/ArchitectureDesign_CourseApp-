@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add payment requisites and confirm order</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  		var transactOrder;
+  		var transactOrders;
+  		var visitor = localStorage.getItem('visitorRef');
+  		var trainingId = localStorage.getItem('trainingRef');
+  		console.log(trainingId);
+  		var totalSum = localStorage.getItem('totalSumRef');  		
+  		var transactStatus = "Accepted"; 
+  		
+	    function showTotalSum() {
+	    	var html = totalSum + ' &nbsp;&nbsp&nbsp&nbsp USD'; 
+	    	document.getElementById("sumOutput").innerHTML = html;  
+		}
+	    
+	    function fixNull(x) {
+	    	if (x === null | x === "null" | x === "none" | x === "")
+	    		return "";
+	    	else
+	    		return x;
+	    }
+	    
+	    function displayOffering() {
+	    	var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+	  				training = JSON.parse(this.responseText);
+			    	var html;
+			  		html = ' ' + training.title + ' | ' + training.specialization + ' &nbsp;&nbsp;(' + training.price + ' USD)'				                  
+				  	document.getElementById("current-order").innerHTML = html; 
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/training/findTrainingById?id=" + trainingId, true);
+	  		xhttp.send();
+	  	}     
+	    
+	    function createNewTransaction(){
+	    	var xhttp = new XMLHttpRequest();
+	  		xhttp.onreadystatechange = function() {
+	  			if(this.readyState == 4 && this.status == 200) {
+		  			transactOrders = JSON.parse(this.responseText);
+		  			transactOrder = transactOrders[transactOrders.length - 1];
+		  			console.log(transactOrder);
+		  			var transactPayerAccount = document.getElementById("payer_acc_input").value;
+			    	var transactRecipAccount = document.getElementById("recip_acc_input").value;
+			    	var transactMethod = document.getElementById("method_input").value;
+			    	var transactSum = totalSum;
+			    	var transactBankDetails = document.getElementById("bank_input").value;
+			    	var transactDateResolve = document.getElementById("resolve_date_input").value;
+			    	
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("POST", "http://localhost:5435/transaction/saveTransaction");
+					xmlhttp.setRequestHeader("Accept", "application/json");
+					xmlhttp.setRequestHeader("Content-Type", "application/json");
+					xmlhttp.send(JSON.stringify({status: transactStatus, sum: transactSum, payerAccount: transactPayerAccount, recipientAccount: transactRecipAccount, method: transactMethod, bankDetails: transactBankDetails, resolvedOn: transactDateResolve, order: transactOrder }));		
+	  			}
+	  		}
+	  		xhttp.open("GET", "http://localhost:5435/order/findAllOrders", true);
+	  		xhttp.send();
+	    }  
+	    
+	    function displaySummary(){
+			location.href = "transact_summary";
+		} 
+  
+  </script>
+</head>  
+<body>
+
+	<div class="contest">
+		    <header class="contest__header">		       
+		        <h1 class="contest__title">Add payment requisites</h1>
+		    </header>
+	</div>
+    <div class="contest">
+		<form class="form">
+			    	<div id="item-selected">		    	
+				    	<div class="dropdown dropdown-auth text-center">					  		
+								<div class="form__input form__input_training"><span id="current-order"></span></div>								  					
+						</div>	           
+			        </div> 	
+			        
+			        <div id="payer_account">
+		            	<input id="payer_acc_input" type="text" placeholder="Payer account" class="form__input" />
+			        </div>
+			        
+			        <div id="recip_account">
+			            <input id="recip_acc_input" type="text" placeholder="Recipient account" class="form__input" />
+			        </div>
+			        
+			        <div id="method">
+			            <input id="method_input" type="text" placeholder="Payment method" class="form__input" />
+			        </div>
+			        
+			        <div id="bank">
+			            <input id="bank_input" type="text" placeholder="Bank specificator (optional)" class="form__input" />
+			        </div>
+			        
+			        <div id="resolved_date">
+			            <input id="resolve_date_input" type="text" placeholder="Sample date of resolving" class="form__input" onfocus="(this.type='date')" />
+			        </div>
+			        
+			        <div>
+			            <div class="sum-block form__input" style="width: 50%; font-size: 20px; text-align: center"><label for="total_sum">Total sum</label></div>	
+			            <div class="sum-block total-sum-figure"><span id="sumOutput"></span></div>	           
+			       </div>      
+			       			        
+			       <button class="btn" type="button" style="color: royalblue" onclick="createNewTransaction()">Validate</button>
+			       <p></p>			        
+			       <button class="btn" type="button" style="color: royalblue" onclick="displaySummary()">Confirm payment</button>
+			</form>	
+	</div>	
+	<script>displayOffering();showTotalSum();</script>
+</body>  
+</html>

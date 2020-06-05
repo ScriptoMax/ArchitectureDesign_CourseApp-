@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign up | Where the story begins</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>  
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  	
+  	var category;  	
+  	var first_name;
+	var second_name;
+	var last_name;
+	var isCorporate;		
+	var userCountry;		
+	var userPassword;
+	var userEmail;	
+	var status = "Active"; 
+	  	
+  	$(function(){
+  	  
+  	  $(".dropdown-menu li a").click(function(){
+  	    
+  	    $(".btn:first-child").text($(this).text());
+  	     $(".btn:first-child").val($(this).text());
+  	  });
+
+  	}); 	
+  	
+  	function displayFormCommon() {
+  	      document.getElementById("first_name").style.display = "block";
+  	      document.getElementById("second_name").style.display = "block";
+  	      document.getElementById("last_name").style.display = "block";
+  	      document.getElementById("corporate").style.display = "block";
+  	      document.getElementById("country").style.display = "block";
+  	      document.getElementById("email").style.display = "block";
+  	      document.getElementById("login").style.display = "block";
+  	      document.getElementById("password").style.display = "block";
+  	      document.getElementsByClassName("btn")[1].style.display = "block";
+  	}
+  	
+  	function hideCategoryFeatures() {
+	      document.getElementById("affiliation").style.display = "none";
+	      document.getElementById("affiliated_status").style.display = "none";
+	      document.getElementById("site_url").style.display = "none";
+	      document.getElementById("teach_experience").style.display = "none";
+	      document.getElementById("spec").style.display = "none";
+	      document.getElementById("language").style.display = "none";
+	      document.getElementById("account").style.display = "none";
+	      document.getElementById("city").style.display = "none";  
+	      document.getElementById("background").style.display = "none";
+	      document.getElementById("portfolio").style.display = "none";  
+	} 	
+  	
+  	function displayFormAdmin() {
+  		category = "Administrator";
+  		hideCategoryFeatures();
+	}
+  	
+  	
+	function displayFormOrg() {
+		  category = "Organiser";
+		  displayFormCommon();
+		  hideCategoryFeatures();
+	  	  document.getElementById("affiliation").style.display = "block";
+	  	  document.getElementById("affiliated_status").style.display = "block";
+	  	  document.getElementById("site_url").style.display = "block";
+	}
+	
+	function displayFormTrainer() {	
+		  category = "Trainer";
+		  displayFormCommon();
+		  hideCategoryFeatures();
+	  	  document.getElementById("affiliation").style.display = "block";
+	  	  document.getElementById("affiliated_status").style.display = "block";
+	  	  document.getElementById("site_url").style.display = "block";	  	  
+	  	  document.getElementById("teach_experience").style.display = "block";
+	  	  document.getElementById("spec").style.display = "block";
+	  	  document.getElementById("language").style.display = "block";	  	  
+	  	  document.getElementById("account").style.display = "block";	  	  	  
+	}
+	
+	function displayFormVisitor() {
+		  category = "Visitor";
+		  displayFormCommon();
+		  hideCategoryFeatures();
+	  	  document.getElementById("city").style.display = "block";
+	  	  document.getElementById("background").style.display = "block";
+	  	  document.getElementById("portfolio").style.display = "block";
+	}
+	
+	function corporateCast() {
+		var isCorporate = document.getElementById("corporate_input").value;
+		
+		if (isCorporate === "yes")
+			return true;
+		else
+			return false;
+	}
+	
+	function matchCategory(){
+		console.log(category);
+		if (category === "Administrator") {
+			createAdmin();
+		} else if (category === "Organiser") {
+			createOrg();
+		} else if (category === "Trainer") {
+			createTrainer();
+		} else
+			createVisitor();
+	}
+	
+	function defineCommonParams() {
+		first_name = document.getElementById("first_name_input").value;
+		second_name = document.getElementById("second_name_input").value;
+		last_name = document.getElementById("last_name_input").value;				
+		isCorporate = corporateCast();
+		userCountry = document.getElementById("country_input").value;		
+		userLogin = document.getElementById("login_input").value;
+		console.log(userLogin);
+		localStorage.setItem('login', userLogin);
+		userPassword = document.getElementById("password_input").value;
+		userEmail = document.getElementById("email_input").value;	
+	} 
+	
+	function createAdmin(){
+		defineCommonParams();		
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", "http://localhost:5435/admin/saveAdministrator");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
+		console.log(first_name);
+		console.log(category);
+		xmlhttp.send(JSON.stringify({role: category, corporate: isCorporate, userStatus: status, login: userLogin, password: userPassword, firstName: first_name, secondName: second_name, lastName: last_name, email: userEmail, country: userCountry}));		
+	}
+	
+	function createOrg(){
+		defineCommonParams();
+		var orgAffiliation = document.getElementById("affiliation_input").value;
+		var orgAffiliationStatus = document.getElementById("affiliated_status_input").value;
+		var orgSite = document.getElementById("site_url_input").value; 
+		var xmlhttp = new XMLHttpRequest();
+		
+		xmlhttp.open("POST", "http://localhost:5435/organiser/saveOrganiser");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
+		xmlhttp.send(JSON.stringify(
+			{role: category, corporate: isCorporate, userStatus: status, login: userLogin, password: userPassword, firstName: first_name, secondName: second_name, lastName: last_name, email: userEmail, country: userCountry, affiliation: orgAffiliation, affiliated_status: orgAffiliationStatus, website: orgSite, openContestNumber: 0, totalContestNumber: 0 }));
+	}
+	
+	function createTrainer(){
+		defineCommonParams();
+		var trainerAffiliation = document.getElementById("affiliation_input").value;
+		var trainerAffiliationStatus = document.getElementById("affiliated_status_input").value;
+		var trainerSite = document.getElementById("site_url_input").value;
+		var trainerExperience = document.getElementById("teach_experience_input").value;
+		var trainerSpec = document.getElementById("spec_input").value;
+		var trainerLanguage = document.getElementById("language_input").value;
+		var trainerAccount = document.getElementById("account_input").value;		
+		
+		var xmlhttp = new XMLHttpRequest();
+		xmlhttp.open("POST", "http://localhost:5435/trainer/saveTrainer");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
+		xmlhttp.send(JSON.stringify(
+			{role: category, corporate: isCorporate, userStatus: status, login: userLogin, password: userPassword, firstName: first_name, secondName: second_name, lastName: last_name, email: userEmail, country: userCountry, affiliation: trainerAffiliation, affiliated_status: trainerAffiliationStatus, website: trainerSite, teachExperience: trainerExperience, specializations: trainerSpec, languages: trainerLanguage, account: trainerAccount, numOfTrainings: 0, averageRate: 0.0 }));
+	}
+	
+	function createVisitor(){
+		defineCommonParams();
+		var visitorCity = document.getElementById("city_input").value;
+		var visitorBack = document.getElementById("background_input").value;
+		var visitorPortfolio = document.getElementById("portfolio_input").value; 
+		var xmlhttp = new XMLHttpRequest();
+		
+		xmlhttp.open("POST", "http://localhost:5435/visitor/saveVisitor");
+		xmlhttp.setRequestHeader("Content-Type", "application/json");
+		xmlhttp.send(JSON.stringify(
+			{role: category, corporate: isCorporate, userStatus: status, login: userLogin, password: userPassword, firstName: first_name, secondName: second_name, lastName: last_name, email: userEmail, country: userCountry, city: visitorCity, contestBackground: visitorBack, portfolio: visitorPortfolio }));
+	}
+	
+	function showResult(){
+		location.href = "success";
+	} 	
+  	</script>  
+</head>
+<body>
+		<div class="user">
+		    <header class="user__header">		       
+		        <h1 class="user__title">Create your user account</h1>
+		    </header>
+		</div>
+		    
+		<div class="dropdown dropdown-auth text-center">
+		  <div class="btn-group">
+		  <button class="btn btn-primary dropdown-toggle spec1" type="button" data-toggle="dropdown" style="font-size: 20px">Specify account category
+		  <!-- <a aria-expanded="false" aria-haspopup="true" role="button" data-toggle="dropdown" class="dropdown-toggle" href="#">
+		  		<span id="selected">Specify account category></span><span class="caret"></span></a>-->
+		  <span class="caret"></span></button>
+		  <ul class="dropdown-menu" onclick="displayFormCommon()">
+			  <li id="admin" onclick="displayFormAdmin()"><a href="#">Administrator</a></li>
+			  <li id="org" onclick="displayFormOrg()"><a href="#">Organiser</a></li>
+			  <li id="trainer" onclick="displayFormTrainer()"><a href="#">Trainer</a></li>
+			  <li id="visitor" onclick="displayFormVisitor()"><a href="#">Site visitor</a></li>
+		 </ul>
+		 </div>
+		</div>
+		    	   
+		<div class="user">	    
+		    <form class="form">
+		        <div id="first_name" style="display: none">
+		            <input id="first_name_input" type="text" placeholder="First name" class="form__input" />
+		        </div>
+		        
+		        <div id="second_name" style="display: none">
+		            <input id="second_name_input" type="text" placeholder="Second name (optional)" class="form__input" />
+		        </div>
+		        
+		        <div id="last_name" style="display: none">
+		            <input id="last_name_input" type="text" placeholder="Last name" class="form__input" />
+		        </div>
+		        
+		        <div id="corporate" style="display: none">
+		            <input id="corporate_input" type="text" placeholder="Do you represent any organisation/business? (yes / no)" class="form__input" />
+		        </div>
+		        
+		        <div id="country" style="display: none">
+		            <input id="country_input" type="text" placeholder="Country" class="form__input" />
+		        </div>
+		        
+		        <div id="email" style="display: none">
+		            <input id="email_input" type="email" placeholder="Email" class="form__input" />
+		        </div>
+		        
+		        <div id="login" style="display: none">
+		            <input id="login_input" type="text" placeholder="Login" class="form__input" />
+		        </div>
+		        
+		        <div id="password" style="display: none">
+		            <input id="password_input" type="password" placeholder="Password" class="form__input" />
+		        </div>
+		        
+		        <div id="affiliation" style="display: none">
+		            <input id="affiliation_input" type="text" placeholder="What organisation / business have you been affiliated to?" class="form__input" />
+		        </div>
+		        
+		        <div id="affiliated_status" style="display: none">
+		            <input id="affiliated_status_input" type="text" placeholder="Specify your status by affiliating organisation / business" class="form__input" />
+		        </div>
+		        
+		        <div id="site_url" style="display: none">
+		            <input id="site_url_input" type="text" placeholder="Web page (www-preceded notation)" class="form__input" />
+		        </div>
+		        
+		        <div id="teach_experience" style="display: none">
+		            <input id="teach_experience_input" type="text" placeholder="Teacher / tutor experience in total (enter decimal-precised number of years)" class="form__input" />
+		        </div>
+		        
+		        <div id="spec" style="display: none">
+		            <input id="spec_input" type="text" placeholder="Specialization fields" class="form__input" />
+		        </div>
+		        
+		        <div id="language" style="display: none">
+		            <input id="language_input" type="text" placeholder="Your training languages" class="form__input" />
+		        </div>
+		        
+		        <div id="account" style="display: none">
+		            <input id="account_input" type="text" placeholder="Bank name / account (comma-separated)" class="form__input" />
+		        </div>
+		        
+		        <div id="city" style="display: none">
+		            <input id="city_input" type="text" placeholder="City you'd search for contest options first" class="form__input" />
+		        </div>
+		        
+		        <div id="background" style="display: none">
+		            <input id="background_input" type="text" placeholder="Any hackathon experience you'd highlight" class="form__input" />
+		        </div>
+		        
+		        <div id="portfolio" style="display: none">
+		            <input id="portfolio_input" type="text" placeholder="Hackathon-related portfolio (provide with specialization details also)" class="form__input" />
+		        </div>
+		        
+		        <button class="btn" type="button" style="color: royalblue; display: none" onclick="matchCategory(); showResult()">Create account</button>
+		    </form>
+		    </div>		
+</body>
+</html>

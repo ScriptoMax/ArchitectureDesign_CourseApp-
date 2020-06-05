@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Challenger detected | Submission success</title>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" 
+  crossorigin="anonymous"> 
+  <link rel="stylesheet" href="css/reg_success.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script> 
+  <script type="text/javascript" src="js/shared.js"></script>
+  <script>
+  
+    var submissionList;
+    var submissionId;
+    var visitor;
+        
+    function fixNull(x) {
+    	if (x === null | x === "null" | x === "none" | x === "")
+    		return "";
+    	else
+    		return x;
+    }
+    
+    function getAccType(x) {
+    	if (x === true)
+    		return "Corporate";
+    	else
+    		return "Individual";
+    }
+    
+   	function displaySummary() {
+  		visitorId = localStorage.getItem('visitorId');
+  		contestId = localStorage.getItem('contestId');
+  		console.log(visitorId);
+  		console.log(contestId);
+  		var xhttp1 = new XMLHttpRequest();
+  		var xhttp2 = new XMLHttpRequest();
+  		var xhttp3 = new XMLHttpRequest();
+  		xhttp1.onreadystatechange = function() {
+  			if(this.readyState == 4 && this.status == 200) {
+  				console.log('passed');
+  				visitor = JSON.parse(this.responseText);
+  				submissionList = visitor.submissions;
+  				console.log(submissionList.length);
+  				submissionId = submissionList[submissionList.length - 1].id;
+  				console.log(submissionId);
+  				xhttp2.onreadystatechange = function() {
+  		  			if(this.readyState == 4 && this.status == 200) {
+  		  			    contest = JSON.parse(this.responseText);	  		  			
+		  				xhttp3.onreadystatechange = function() {
+				  		  		if(this.readyState == 4 && this.status == 200) {
+				  			        console.log(submissionId);
+					  				var submission = JSON.parse(this.responseText);
+					  				var html = 
+					  					'<thead style="text-align: center; font-size: 24px; margin-bottom: 10px">' +
+					  			        '<tr><th id="th-cust" colspan="2">Submission overview</th>' +     
+					  			        '</tr></thead>' +
+					  					'<tbody>' +
+					  					'<tr><td class="td-cust"><strong> Submission ID </strong></td>' + 
+					  				    '<td class="td-cust">' + submission.id + '</td></tr>' +
+					  				    '<tr><td class="td-cust"><strong> Status </strong></td>' + 
+									    '<td class="td-cust">' + submission.status + '</td></tr>' +
+					  					'<tr><td class="td-cust"><strong> User </strong></td>' + 
+					  				    '<td class="td-cust">' + visitor.lastName + ' ' + visitor.firstName + ' ' + fixNull(visitor.secondName) + '</td></tr>' +
+					  				    '<tr><td class="td-cust"><strong> Country </strong></td>' + 
+									    '<td class="td-cust">' + fixNull(visitor.country) + '</td></tr>' + 
+									    '<tr><td class="td-cust"><strong> Contest  </strong></td>' + 
+									    '<td class="td-cust">' + fixNull(contest.title) + '</td></tr>' +
+									    '<tr><td class="td-cust"><strong> Specialization </strong></td>' + 
+									    '<td class="td-cust">' + fixNull(contest.specialization) + '</td></tr>' +
+									    '<tr><td class="td-cust"><strong> Location </strong></td>' + 
+									    '<td class="td-cust">' + fixNull(contest.eventPlace) + '</td></tr>' +
+									    '<tr><td class="td-cust"><strong> Period </strong></td>' + 
+									    '<td class="td-cust"> from ' + contest.eventStart + ' to ' + contest.eventFinish + '</td></tr>'			  				    			    
+									document.getElementById("summary").innerHTML = html;  
+				  		  		}
+			  				}    		
+			  		     xhttp3.open("GET", "http://localhost:5435/submission/findSubmissionById?id=" + submissionId, true);
+			  		   	 xhttp3.send();
+  		  			}
+  				}
+  				xhttp2.open("GET", "http://localhost:5435/contest/findContestById?id=" + contestId, true);
+  		   	 	xhttp2.send();
+  			}
+  		}
+  		xhttp1.open("GET", "http://localhost:5435/visitor/findVisitorById?id=" + visitorId, true);
+  	  	xhttp1.send();
+  	}  	
+   		
+  </script>
+
+</head>
+<body>
+
+<script>displaySummary();</script>
+
+<table id="summary">
+
+</table>
+<p style="text-align: center; font-size: 16px; color: orange"><a href="addorder">Enter new order</a></p>
+</body>
+</html>

@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void blockUser(Long userId) {
 		User matchUser = userRepository.findById(userId).get();  
-		matchUser.setUserStatus("BLOCKED");
+		matchUser.setUserStatus("Blocked");
 		userRepository.save(matchUser);
 	}
 	

@@ -36,7 +36,7 @@ public class TransactionServiceImpl implements TransactionService {
 	
 	public void resolveTransaction(Long transactionId) {
 		Transaction req = transactionRepository.findById(transactionId).get();
-		req.setStatus("RESOLVED");
+		req.setStatus("Resolved");
 		transactionRepository.save(req);			
 	}
 	

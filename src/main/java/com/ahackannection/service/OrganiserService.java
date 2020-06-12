@@ -14,6 +14,8 @@ public interface OrganiserService {
 	
 	Organiser saveOrganiser(Organiser organiser) throws ValidationException;
 	
+	Organiser findOrganiserById(Long id);
+	
 	List<Organiser> findAllOrganisers();
 
 }

@@ -38,6 +38,12 @@ public class ReviewServiceImpl implements ReviewService {
 		reviewRepository.deleteById(reviewId);
 	}
 	
+	public TrainingReview findReviewById(Long id) {		
+		TrainingReview review = reviewRepository.findById(id).get();
+		
+		return review;
+	}
+	
 	public List<TrainingReview> findReviewsByVisitorId(Long visitorId) {		
 		List<TrainingReview> reviewList = Lists.newArrayList(reviewRepository.findAll());
 		

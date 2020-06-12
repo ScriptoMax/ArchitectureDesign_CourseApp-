@@ -14,6 +14,8 @@ public interface AdministratorService {
 	
 	Administrator saveAdministrator(Administrator administrator) throws ValidationException;
 	
+	Administrator findAdminById(Long id);
+	
 	List<Administrator> findAllAdministrators();
 
 }

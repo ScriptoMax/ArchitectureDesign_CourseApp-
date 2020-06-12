@@ -35,7 +35,7 @@ public class RequestServiceImpl implements RequestService {
 	
 	public void closeRequest(Long requestId) {
 		SupportRequest req = requestRepository.findById(requestId).get();
-		req.setRequestStatus("CLOSE");
+		req.setRequestStatus("Closed");
 		requestRepository.save(req);			
 	}
 	

@@ -18,6 +18,8 @@ public interface ReviewService {
     
 	void removeReview(Long reviewId);
 	
+	TrainingReview findReviewById(Long id); 
+	
 	List<TrainingReview> findReviewsByVisitorId(Long reviewId);
 	
 	List<TrainingReview> findReviewsByTrainingId(Long reviewId);

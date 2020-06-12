@@ -31,7 +31,14 @@ public class OrganiserServiceImpl implements OrganiserService {
 		validateOrganiser(organiser);
 		Organiser validOrganiser = organiserRepository.save(organiser);
 		return validOrganiser;		
-	}			
+	}		
+	
+	public Organiser findOrganiserById(Long id) {
+		
+		Organiser organiser = organiserRepository.findById(id).get();
+		
+		return organiser;
+	}
 	
 	public List<Organiser> findAllOrganisers() {
 		

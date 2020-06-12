@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ahackannection.entity.Contest;
 import com.ahackannection.entity.TrainingReview;
 import com.ahackannection.exception.ValidationException;
 import com.ahackannection.service.ReviewService;
@@ -33,6 +34,11 @@ public class ReviewController {
 		return reviewService.saveReview(review);
 	}
 	
+	@GetMapping("/findReviewById")
+	public TrainingReview findReviewById(@RequestParam Long id) {
+		return reviewService.findReviewById(id);
+	}
+	
 	@GetMapping("/findByVisitorId")
 	public List<TrainingReview> findReviewsByVisitorId(@RequestParam Long visitorId) {
 		return reviewService.findReviewsByVisitorId(visitorId);
@@ -51,8 +57,7 @@ public class ReviewController {
 	@GetMapping("/findWithinRateRange")
 	public List<TrainingReview> findReviewsWithinRateRange(@RequestParam byte lowerBound, @RequestParam byte upperBound) {
 		return reviewService.findReviewsWithinRateRange(lowerBound, upperBound);
-	}
-	
+	}	
 	
 	@GetMapping("/findAll")
 	public List<TrainingReview> findAllReviews() {

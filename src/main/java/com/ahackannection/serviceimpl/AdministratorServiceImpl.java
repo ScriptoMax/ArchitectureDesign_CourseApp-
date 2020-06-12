@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ahackannection.entity.SupportRequest;
 import com.ahackannection.entity.user.Administrator;
 import com.ahackannection.exception.ValidationException;
 import com.ahackannection.repository.AdminRepository;
@@ -32,6 +33,12 @@ public class AdministratorServiceImpl implements AdministratorService {
 		Administrator validAdministrator = administratorRepository.save(administrator);
 		return validAdministrator;		
 	}			
+	
+	public Administrator findAdminById(Long id) {		
+		Administrator administrator = administratorRepository.findById(id).get();
+		
+		return administrator;
+	}
 	
 	public List<Administrator> findAllAdministrators() {
 		
